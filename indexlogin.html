@@ -196,8 +196,7 @@
 
         // Global Variables MUST BE USED
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-aura-essencia-app-id';
-        // CORREÇÃO: Removidos os valores mock 'apiKey: "mock", authDomain: "mock", projectId: "mock"'
-        // para permitir que o ambiente injete chaves de API válidas para os serviços Auth/Firestore.
+        // CORREÇÃO: Usando objeto vazio para garantir que o ambiente tente injetar as chaves válidas.
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {}; 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
@@ -227,11 +226,7 @@
         const initFirebase = async () => {
             try {
                 // 1. Initialize App
-                // Verificação para evitar inicializar com objeto vazio se não houver config real
-                if (Object.keys(firebaseConfig).length === 0 && !initialAuthToken) {
-                    console.warn("Configuração do Firebase vazia. Tentando inicialização mínima.");
-                }
-                
+                // A inicialização sempre deve ocorrer
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -253,16 +248,19 @@
                         document.getElementById('app-navbar').classList.add('hidden');
                         document.getElementById('app-main').classList.add('hidden');
                         isAuthReady = true; // Permite a interação com a tela de login
-                        // Tenta login automático com token (se houver)
+                        
+                        // NOVO FLUXO DE FALLBACK PARA GARANTIR O LOGIN ANÔNIMO:
                         if (initialAuthToken) {
                             try {
+                                // Tenta login com token (prioridade)
                                 await signInWithCustomToken(auth, initialAuthToken);
                             } catch (error) {
-                                console.error("Erro durante o login com token:", error);
-                                showModal("Erro de Autenticação", "Não foi possível conectar ao serviço. Tente novamente mais tarde.");
+                                console.error("Erro durante o login com token, tentando anônimo:", error);
+                                // Se o token falhar, tenta o anônimo como último recurso
+                                await signInAnonymously(auth); 
                             }
-                        } else if (Object.keys(firebaseConfig).length > 0) {
-                            // Se não houver token, tente login anônimo (padrão para apps sem autenticação obrigatória)
+                        } else {
+                            // Se não houver token, tenta imediatamente o login anônimo
                             await signInAnonymously(auth);
                         }
                     }
@@ -374,7 +372,8 @@
                 // O listener onAuthStateChanged cuidará da navegação
             } catch (error) {
                 console.error("Erro no login anônimo:", error);
-                showModal("Erro de Conexão", "Não foi possível realizar o acesso rápido. Tente novamente mais tarde.");
+                // Se houver erro aqui, provavelmente é a chave de API novamente.
+                showModal("Erro de Conexão", `Não foi possível realizar o acesso rápido. Tente novamente mais tarde. Erro: ${error.message}`);
             }
         };
 
