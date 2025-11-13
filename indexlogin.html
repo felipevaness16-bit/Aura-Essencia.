@@ -196,7 +196,9 @@
 
         // Global Variables MUST BE USED
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-aura-essencia-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* Mock Config */ apiKey: "mock", authDomain: "mock", projectId: "mock" };
+        // CORREÇÃO: Removidos os valores mock 'apiKey: "mock", authDomain: "mock", projectId: "mock"'
+        // para permitir que o ambiente injete chaves de API válidas para os serviços Auth/Firestore.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {}; 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let app, db, auth, userId = null;
@@ -225,6 +227,11 @@
         const initFirebase = async () => {
             try {
                 // 1. Initialize App
+                // Verificação para evitar inicializar com objeto vazio se não houver config real
+                if (Object.keys(firebaseConfig).length === 0 && !initialAuthToken) {
+                    console.warn("Configuração do Firebase vazia. Tentando inicialização mínima.");
+                }
+                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -254,6 +261,9 @@
                                 console.error("Erro durante o login com token:", error);
                                 showModal("Erro de Autenticação", "Não foi possível conectar ao serviço. Tente novamente mais tarde.");
                             }
+                        } else if (Object.keys(firebaseConfig).length > 0) {
+                            // Se não houver token, tente login anônimo (padrão para apps sem autenticação obrigatória)
+                            await signInAnonymously(auth);
                         }
                     }
                 });
@@ -316,6 +326,9 @@
                         break;
                     case 'auth/weak-password':
                         errorMessage = "A senha é muito fraca. Escolha uma senha mais forte.";
+                        break;
+                    case 'auth/api-key-not-valid': // Erro mais específico da configuração (mantido por segurança)
+                        errorMessage = "Erro de Configuração. A chave de API do Firebase não é válida. (Tente novamente ou use o Acesso Rápido.)";
                         break;
                     default:
                         errorMessage = `Erro de Cadastro: ${error.message}`;
@@ -891,7 +904,7 @@
                         </ul>
 
                         <div class="mt-8">
-                            <a href="https://link-de-pagamento-glamour.com/1470" target="_blank" onclick="simulatePayment('Plano Glamour', 'R$14,70')"
+                            <a href="[https://www.glamourcosmeticos.com.br/formas-de-pagamento/]" target="_blank" onclick="simulatePayment('Plano Glamour', 'R$14,70')"
                                 class="w-full btn-primary text-white py-3 rounded-lg font-bold text-center block">
                                 ${isGlamour ? 'Plano Atual' : 'Assinar R$14,70/mês'}
                             </a>
@@ -916,7 +929,7 @@
                         </ul>
 
                         <div class="mt-8">
-                            <a href="https://link-de-pagamento-aura.com/2790" target="_blank" onclick="simulatePayment('Plano Aura', 'R$27,90')"
+                            <a href="[https://somosaurapay.com/canales-de-pago/]" target="_blank" onclick="simulatePayment('Plano Aura', 'R$27,90')"
                                 class="w-full btn-primary text-white py-3 rounded-lg font-bold text-center block">
                                 ${isAura ? 'Plano Atual' : 'Assinar R$27,90/mês'}
                             </a>
