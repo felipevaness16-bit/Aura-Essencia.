@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura & Essencia - Seu Guia de Beleza e Bem-Estar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            --color-primary: #4B0082; /* Deep Violet/Indigo */
+            --color-accent: #EFC050; /* Gold */
+            --color-background: #F8F8F8; /* Light Cream */
+            --color-text: #333333;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+        }
+        .luxury-header {
+            font-family: 'Playfair Display', serif;
+            color: var(--color-primary);
+        }
+        .btn-primary {
+            background-color: var(--color-primary);
+            box-shadow: 0 4px 15px rgba(75, 0, 130, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #6a00c6;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(75, 0, 130, 0.6);
+        }
+        .plan-card {
+            border: 1px solid rgba(75, 0, 130, 0.1);
+            transition: all 0.3s ease;
+        }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(75, 0, 130, 0.15);
+        }
+        /* Estilos para o ícone de carregamento */
+        .spinner {
+            border-top-color: var(--color-accent);
+            border-left-color: var(--color-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Melhoria para a navegação mobile (touch target size) */
+        #nav-menu button, #mobile-drawer button {
+            padding: 0.75rem 1rem; /* Maior área de toque */
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl border-t-8 border-violet-700">
+            <div class="text-center mb-8">
+                <i data-lucide="gem" class="w-12 h-12 mx-auto text-violet-700 mb-3"></i>
+                <h1 class="luxury-header text-4xl font-bold text-violet-800">Aura & Essencia</h1>
+                <p class="text-gray-500 mt-2">Bem-vinda à sua jornada de beleza e bem-estar.</p>
+            </div>
+            
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
+                <div class="mb-5">
+                    <label for="login-email" class="block text-sm font-medium text-gray-700">E-mail (Simulado)</label>
+                    <input type="email" id="login-email" value="usuario@simulado.com" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-violet-500 focus:ring-violet-500 p-3" placeholder="Seu e-mail">
+                </div>
+                <div class="mb-6">
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">Senha (Simulada)</label>
+                    <input type="password" id="login-password" value="123456" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-violet-500 focus:ring-violet-500 p-3" placeholder="Sua senha">
+                </div>
+                
+                <button type="submit" id="login-btn" class="btn-primary text-white py-3 px-8 rounded-lg font-bold w-full flex items-center justify-center">
+                    <i data-lucide="log-in" class="w-5 h-5 mr-2" id="login-icon"></i>
+                    Entrar
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-500 mb-3">ou continue sem conta:</p>
+                <button onclick="signInAnon();" class="text-violet-600 hover:text-violet-800 font-medium flex items-center justify-center mx-auto transition duration-150">
+                    <i data-lucide="eye" class="w-5 h-5 mr-2"></i>Acesso Rápido (Anônimo)
+                </button>
+            </div>
+        </div>
+    </div>
+    <nav class="bg-white shadow-lg p-4 sticky top-0 z-10 hidden" id="app-navbar">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="luxury-header text-2xl font-bold">Aura & Essencia</h1>
+            <div id="nav-menu" class="hidden md:flex space-x-6">
+                <button onclick="navigate('profile')" class="text-gray-700 hover:text-indigo-600 transition duration-150 flex items-center"><i data-lucide="user" class="w-5 h-5 mr-1"></i>Meu Perfil</button>
+                <button onclick="navigate('tips')" class="text-gray-700 hover:text-indigo-600 transition duration-150 flex items-center"><i data-lucide="sparkles" class="w-5 h-5 mr-1"></i>Dicas Diárias</button>
+                <button onclick="navigate('evolution')" class="text-gray-700 hover:text-indigo-600 transition duration-150 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 mr-1"></i>Evolução</button>
+                <button onclick="navigate('look')" class="text-gray-700 hover:text-indigo-600 transition duration-150 flex items-center"><i data-lucide="gem" class="w-5 h-5 mr-1"></i>Look do Dia (Aura)</button>
+                <button onclick="navigate('plans')" class="text-gray-700 hover:text-indigo-600 transition duration-150 flex items-center"><i data-lucide="credit-card" class="w-5 h-5 mr-1"></i>Planos</button>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-gray-700">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div id="mobile-drawer" class="fixed inset-0 bg-white z-20 transform -translate-x-full transition-transform duration-300 md:hidden">
+        <div class="flex justify-end p-4">
+            <button id="close-drawer" class="text-gray-700">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="flex flex-col space-y-4 p-6">
+            <button onclick="navigate('profile'); toggleMobileDrawer(false);" class="text-lg text-gray-700 hover:text-indigo-600 flex items-center"><i data-lucide="user" class="w-5 h-5 mr-2"></i>Meu Perfil</button>
+            <button onclick="navigate('tips'); toggleMobileDrawer(false);" class="text-lg text-gray-700 hover:text-indigo-600 flex items-center"><i data-lucide="sparkles" class="w-5 h-5 mr-2"></i>Dicas Diárias</button>
+            <button onclick="navigate('evolution'); toggleMobileDrawer(false);" class="text-lg text-gray-700 hover:text-indigo-600 flex items-center"><i data-lucide="trending-up" class="w-5 h-5 mr-2"></i>Evolução</button>
+            <button onclick="navigate('look'); toggleMobileDrawer(false);" class="text-lg
